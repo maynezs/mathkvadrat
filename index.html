@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>√ МатТренажёр — квадратные корни</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b1c;
+  --cyan:#22d3ee;
+  --violet:#a855f7;
+  --green:#22c55e;
+  --red:#ef4444;
+  --yellow:#facc15;
+  --text:#e6ecff;
+  --muted:#8b96bf;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:'Montserrat',system-ui,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #1b2a6b 0%, transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, #4a1a7a 0%, transparent 55%),
+    radial-gradient(900px 700px at 50% 120%, #0b3b5c 0%, transparent 60%),
+    var(--bg);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(34,211,238,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,211,238,.06) 1px, transparent 1px);
+  background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(circle at 50% 40%, #000 0%, transparent 78%);
+  mask-image:radial-gradient(circle at 50% 40%, #000 0%, transparent 78%);
+  pointer-events:none;
+  z-index:0;
+}
+.app{
+  flex:1; width:100%; max-width:880px; margin:0 auto;
+  padding:22px 16px 40px; position:relative; z-index:1;
+}
+.screen{display:none; animation:fade .35s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ---------- Заголовок ---------- */
+.hero{text-align:center;margin-bottom:22px}
+.hero-badge{
+  display:inline-block;font-size:10.5px;letter-spacing:3px;color:var(--cyan);
+  border:1px solid rgba(34,211,238,.4);padding:5px 13px;border-radius:999px;
+  background:rgba(34,211,238,.08);margin-bottom:14px;
+}
+h1{
+  font-family:'Russo One',sans-serif;
+  font-size:clamp(24px,6vw,42px);
+  margin:0 0 10px;letter-spacing:1px;
+  background:linear-gradient(90deg,#22d3ee,#a855f7,#facc15);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(34,211,238,.35));
+}
+.subtitle{color:var(--muted);font-size:13.5px;margin:0;line-height:1.5}
+
+/* ---------- Панели ---------- */
+.panel{
+  background:linear-gradient(180deg,rgba(20,29,63,.95),rgba(11,18,41,.95));
+  border:1.5px solid rgba(34,211,238,.22);
+  border-radius:18px;padding:18px 20px;
+  box-shadow:0 14px 40px rgba(0,0,0,.45),0 0 30px rgba(34,211,238,.06);
+}
+.theory{margin-bottom:8px}
+.theory h2{font-family:'Russo One';font-size:15px;margin:0 0 12px;color:var(--cyan);letter-spacing:1px}
+.theory ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#c3cdf0}
+.theory li{margin-bottom:5px}
+.theory b{color:#fff}
+
+/* ---------- Выбор темы ---------- */
+.choose{
+  font-family:'Russo One';font-size:14px;letter-spacing:2px;color:var(--muted);
+  text-align:center;margin:26px 0 14px;text-transform:uppercase;
+}
+.themes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:620px){.themes{grid-template-columns:1fr}}
+.theme-card{
+  display:flex;flex-direction:column;gap:6px;text-align:left;padding:18px;
+  border-radius:16px;cursor:pointer;color:var(--text);font-family:inherit;
+  background:linear-gradient(160deg,#16204a,#0d1430);
+  border:1.5px solid rgba(168,85,247,.35);
+  transition:.2s;
+}
+.theme-card:hover{
+  transform:translateY(-3px);border-color:var(--cyan);
+  box-shadow:0 12px 30px rgba(34,211,238,.2),inset 0 0 0 1px rgba(34,211,238,.3);
+}
+.theme-ico{font-family:'Russo One';font-size:22px;color:var(--cyan)}
+.theme-name{font-family:'Russo One';font-size:16px}
+.theme-desc{font-size:12.5px;color:var(--muted);line-height:1.45}
+
+/* ---------- Верхняя панель викторины ---------- */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.btn-ghost{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+  color:var(--muted);padding:8px 13px;border-radius:10px;font-family:inherit;
+  font-size:12.5px;cursor:pointer;transition:.2s;
+}
+.btn-ghost:hover{color:#fff;border-color:var(--cyan)}
+.theme-tag{font-family:'Russo One';font-size:12px;letter-spacing:1px;color:var(--violet);text-transform:uppercase;text-align:center;flex:1}
+.score-tag{font-family:'Russo One';font-size:14px;color:var(--yellow);white-space:nowrap}
+
+/* ---------- Прогресс ---------- */
+.progress{margin-bottom:16px}
+.progress-bar{
+  height:10px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+}
+.progress-fill{
+  height:100%;width:0;border-radius:999px;transition:width .35s ease;
+  background:linear-gradient(90deg,var(--cyan),var(--violet));
+  box-shadow:0 0 12px rgba(34,211,238,.65);
+}
+.progress-label{font-size:11px;color:var(--muted);margin-top:7px;letter-spacing:1.5px;text-transform:uppercase}
+
+/* ---------- Вопрос ---------- */
+.question-panel{text-align:center;padding:26px 18px;margin-bottom:16px}
+.q-label{font-size:10.5px;letter-spacing:3px;color:var(--muted);margin-bottom:12px}
+.question{
+  font-family:'Russo One';font-size:clamp(21px,5vw,32px);line-height:1.4;color:#fff;
+  text-shadow:0 0 22px rgba(34,211,238,.45);word-break:break-word;
+}
+
+/* ---------- Варианты ответа ---------- */
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:520px){.options{grid-template-columns:1fr}}
+.option{
+  padding:16px 14px;border-radius:14px;
+  font-family:'Russo One';font-size:18px;color:var(--text);
+  background:linear-gradient(180deg,#18234e,#0e1633);
+  border:1.5px solid rgba(34,211,238,.25);
+  cursor:pointer;transition:.15s;
+  box-shadow:0 4px 0 #060a18;
+  user-select:none;
+}
+.option:hover:not(:disabled){
+  border-color:var(--cyan);transform:translateY(-2px);
+  box-shadow:0 6px 0 #060a18,0 0 22px rgba(34,211,238,.3);
+}
+.option:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 #060a18}
+.option:disabled{cursor:default}
+.option.correct{
+  background:linear-gradient(180deg,#1a5c38,#0f3d24);
+  border-color:var(--green);color:#c8ffdf;
+  box-shadow:0 4px 0 #062514,0 0 26px rgba(34,197,94,.55);
+}
+.option.wrong{
+  background:linear-gradient(180deg,#5c1a1a,#3d0f0f);
+  border-color:var(--red);color:#ffd6d6;
+  box-shadow:0 4px 0 #250606;
+  animation:shake .35s;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  75%{transform:translateX(6px)}
+}
+
+/* ---------- Обратная связь и кнопки ---------- */
+.feedback{min-height:22px;text-align:center;font-size:14px;font-weight:700;margin-bottom:14px}
+.feedback.ok{color:var(--green)}
+.feedback.no{color:#ff8b8b}
+
+.actions{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}
+.actions.center{justify-content:center}
+.btn{
+  font-family:'Russo One';font-size:14px;letter-spacing:.5px;
+  padding:13px 20px;border-radius:12px;border:none;cursor:pointer;
+  transition:.18s;color:#06111f;
+}
+.btn-next{
+  background:linear-gradient(180deg,#5eead4,#22d3ee);
+  box-shadow:0 4px 0 #0e7490;flex:1;min-width:150px;
+}
+.btn-next:disabled{opacity:.35;cursor:not-allowed}
+.btn-next:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 0 #0e7490,0 0 24px rgba(34,211,238,.5)}
+.btn-refresh{
+  background:linear-gradient(180deg,#c084fc,#a855f7);
+  box-shadow:0 4px 0 #6b21a8;color:#0b0620;
+}
+.btn-refresh:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 0 #6b21a8,0 0 24px rgba(168,85,247,.5)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* ---------- Финал ---------- */
+.result{text-align:center;padding:34px 22px}
+.result-emoji{font-size:56px;margin-bottom:8px;filter:drop-shadow(0 0 18px rgba(250,204,21,.5))}
+.result h2{font-family:'Russo One';font-size:25px;margin:0 0 10px;color:#fff}
+.result-score{
+  font-family:'Russo One';font-size:46px;margin-bottom:12px;
+  background:linear-gradient(90deg,var(--cyan),var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.result p{color:var(--muted);font-size:14px;margin:0 0 22px;line-height:1.6}
+
+/* ---------- Футер ---------- */
+.footer{
+  position:relative;z-index:1;text-align:center;padding:18px 12px 24px;
+  font-size:12.5px;color:#6d78a3;letter-spacing:.5px;
+}
+.footer a{color:var(--cyan);text-decoration:none;border-bottom:1px dashed rgba(34,211,238,.5)}
+.footer a:hover{color:#fff;border-color:#fff}
+</style>
+</head>
+<body>
+
+<main class="app">
+
+  <!-- ================= СТАРТ ================= -->
+  <section id="screen-start" class="screen active">
+    <header class="hero">
+      <div class="hero-badge">MATH TRAINER · v1.0</div>
+      <h1>КВАДРАТНЫЕ КОРНИ</h1>
+      <p class="subtitle">Тренажёр по математике · 10 заданий · 4 варианта ответа</p>
+    </header>
+
+    <div class="panel theory">
+      <h2>📘 ТЕОРИЯ (КОРОТКО)</h2>
+      <ul>
+        <li><b>Определение:</b> √a = b, если b ≥ 0 и b² = a. Под корнем не может быть отрицательного числа.</li>
+        <li><b>Вынесение множителя:</b> √(a²·b) = a·√b, например √72 = √(36·2) = 6√2.</li>
+        <li><b>Внесение множителя:</b> a·√b = √(a²·b), например 3√5 = √45.</li>
+        <li><b>Действия:</b> √a · √b = √(ab); (√a)² = a при a ≥ 0.</li>
+        <li><b>Уравнение √x = a</b> имеет решение x = a² (при a ≥ 0).</li>
+        <li><b>Уравнение √(x + b) = a:</b> возводим обе части в квадрат → x + b = a² → x = a² − b.</li>
+      </ul>
+    </div>
+
+    <h2 class="choose">Выбери тему</h2>
+    <div class="themes">
+      <button class="theme-card" data-theme="roots">
+        <span class="theme-ico">√x</span>
+        <span class="theme-name">Квадратные корни</span>
+        <span class="theme-desc">Вычисление, упрощение, вынесение и внесение множителя</span>
+      </button>
+      <button class="theme-card" data-theme="equations">
+        <span class="theme-ico">√x = a</span>
+        <span class="theme-name">Уравнения с корнями</span>
+        <span class="theme-desc">Решение уравнений вида √(x + b) = a и подобных</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ================= ВИКТОРИНА ================= -->
+  <section id="screen-quiz" class="screen">
+    <div class="topbar">
+      <button class="btn-ghost" id="btn-exit">← В меню</button>
+      <div class="theme-tag" id="quiz-theme">Квадратные корни</div>
+      <div class="score-tag">⭐ <span id="score">0</span></div>
+    </div>
+
+    <div class="progress">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label">Задание <span id="q-num">1</span> / 10</div>
+    </div>
+
+    <div class="panel question-panel">
+      <div class="q-label">РЕШИ ЗАДАНИЕ</div>
+      <div class="question" id="question-text">√144</div>
+    </div>
+
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+
+    <div class="actions">
+      <button class="btn btn-refresh" id="btn-refresh">🔄 Другие варианты</button>
+      <button class="btn btn-next" id="btn-next" disabled>Дальше →</button>
+    </div>
+  </section>
+
+  <!-- ================= ИТОГИ ================= -->
+  <section id="screen-end" class="screen">
+    <div class="panel result">
+      <div class="result-emoji" id="result-emoji">🏆</div>
+      <h2 id="result-title">Отлично!</h2>
+      <div class="result-score"><span id="final-score">0</span> / 10</div>
+      <p id="result-text"></p>
+      <div class="actions center">
+        <button class="btn btn-next" id="btn-again">Играть снова</button>
+        <button class="btn btn-refresh" id="btn-menu">Выбрать тему</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  Автор: <a href="https://vk.ru/archigpt" target="_blank" rel="noopener">vk.ru/archigpt</a>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ======================= УТИЛИТЫ ======================= */
+  const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const shuffle = arr => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+
+  // Правдоподобные числовые дистракторы (возвращает перемешанный массив чисел)
+  function numDist(n){
+    const s = new Set();
+    const add = v => {
+      if (Number.isInteger(v) && v !== n && v > 0 && v <= 10000) s.add(v);
+    };
+    add(n + 1); add(n + 2); add(n + 3); add(n + 4);
+    add(n - 1); add(n - 2); add(n - 3); add(n - 5);
+    add(n * 2); add(n * 3); add(Math.round(n / 2)); add(n * 10);
+    if (n <= 40) add(n * n);
+    add(n + 10); add(n + 7); add(n - 7);
+    return shuffle([...s]);
+  }
+
+  // Берём 3 уникальных строки-дистрактора, не совпадающих с верным ответом
+  function pick3(cands, correct){
+    const out = [];
+    for (const c of cands){
+      const s = String(c);
+      if (s === correct || out.includes(s)) continue;
+      out.push(s);
+      if (out.length === 3) break;
+    }
+    return out;
+  }
+
+  /* ======================= ГЕНЕРАТОРЫ: КВАДРАТНЫЕ КОРНИ ======================= */
+  const rootGens = [
+    // √(n²)
+    () => {
+      const n = rand(2, 20);
+      return { q: `√${n * n}`, a: String(n), gen: () => pick3(numDist(n).map(String), String(n)) };
+    },
+    // √((-n)²)
+    () => {
+      const n = rand(2, 12);
+      return {
+        q: `√((−${n})²)`, a: String(n),
+        gen: () => pick3([-n, n * n, -n * n, n + 1, 2 * n].map(String), String(n))
+      };
+    },
+    // Вынесение множителя: √(k²m) = k√m
+    () => {
+      const m = pick([2, 3, 5, 6, 7, 10]);
+      const k = rand(2, 7);
+      const a = `${k}√${m}`;
+      const cands = [`${k * m}`, `${k + 1}√${m}`, `${k - 1}√${m}`, `${k}√${m + 1}`, `${k + 2}`, `${k * m}√${m}`];
+      return { q: `Упрости: √${k * k * m}`, a, gen: () => pick3(cands, a) };
+    },
+    // √a · √b
+    () => {
+      const m = pick([2, 3, 5, 7]);
+      const k1 = rand(1, 4), k2 = rand(1, 4);
+      const a = String(k1 * k2 * m);
+      return {
+        q: `√${k1 * k1 * m} · √${k2 * k2 * m}`, a,
+        gen: () => pick3(numDist(k1 * k2 * m).map(String), a)
+      };
+    },
+    // Деление корней
+    () => {
+      const m = pick([2, 3, 5, 6, 7]);
+      const k = rand(2, 9);
+      const a = String(k);
+      return { q: `√${k * k * m} : √${m}`, a, gen: () => pick3(numDist(k).map(String), a) };
+    },
+    // Корень из дроби
+    () => {
+      let p = rand(2, 9), qq = rand(2, 9);
+      while (qq === p) qq = rand(2, 9);
+      const a = `${p}/${qq}`;
+      const cands = [`${qq}/${p}`, `${p * p}/${qq * qq}`, `${p}/${qq * 2}`, `${p * 2}/${qq}`, `${p}/${qq * qq}`];
+      return { q: `Вычисли: √(${p * p}/${qq * qq})`, a, gen: () => pick3(cands, a) };
+    },
+    // Подобные слагаемые
+    () => {
+      const m = pick([2, 3, 5, 6, 7]);
+      const a1 = rand(2, 9), a2 = rand(2, 9);
+      const a = `${a1 + a2}√${m}`;
+      const cands = [
+        `${a1 + a2}`, `${a1 * a2}√${m}`, `${a1 + a2}√${m + 1}`,
+        `${Math.abs(a1 - a2)}√${m}`, `${a1 + a2 + 1}√${m}`
+      ];
+      return { q: `Упрости: ${a1}√${m} + ${a2}√${m}`, a, gen: () => pick3(cands, a) };
+    },
+    // (√n)²
+    () => {
+      const n = rand(2, 30);
+      const a = String(n);
+      return {
+        q: `(√${n})²`, a,
+        gen: () => pick3([n * n, 2 * n, `√${n}`, n + 1, n - 1].map(String), a)
+      };
+    },
+    // Внесение множителя под корень
+    () => {
+      const m = pick([2, 3, 5, 6, 7]);
+      const k = rand(2, 8);
+      const a = `√${k * k * m}`;
+      const cands = [`√${k * m}`, `√${k + m}`, `√${k * k * k * m}`, `${k * k * m}`, `√${k * k + m}`];
+      return { q: `Внеси множитель под корень: ${k}√${m}`, a, gen: () => pick3(cands, a) };
+    }
+  ];
+
+  /* ======================= ГЕНЕРАТОРЫ: УРАВНЕНИЯ С КОРНЯМИ ======================= */
+  const eqGens = [
+    // √x = a
+    () => {
+      const a = rand(2, 15);
+      const ans = a * a;
+      return {
+        q: `√x = ${a}`, a: String(ans),
+        gen: () => pick3([a, 2 * a, ans + 1, ans - 1, ans + a].map(String), String(ans))
+      };
+    },
+    // √(x + b) = a
+    () => {
+      const a = rand(3, 12);
+      const b = rand(1, a * a - 1);
+      const x = a * a - b;
+      return {
+        q: `√(x + ${b}) = ${a}`, a: String(x),
+        gen: () => pick3([String(a * a + b), ...numDist(x).map(String)], String(x))
+      };
+    },
+    // √(x − b) = a
+    () => {
+      const a = rand(2, 12);
+      const b = rand(1, 30);
+      const x = a * a + b;
+      const wrong = (a * a - b > 0) ? a * a - b : a * a + b + 5;
+      return {
+        q: `√(x − ${b}) = ${a}`, a: String(x),
+        gen: () => pick3([String(wrong), ...numDist(x).map(String)], String(x))
+      };
+    },
+    // √(kx + b) = a
+    () => {
+      for (let t = 0; t < 100; t++){
+        const k = rand(2, 5), x0 = rand(1, 15), b = rand(1, 12);
+        const v = k * x0 + b;
+        const a = Math.sqrt(v);
+        if (Number.isInteger(a) && a >= 2){
+          return {
+            q: `√(${k}x + ${b}) = ${a}`, a: String(x0),
+            gen: () => pick3(
+              [String(v), String(x0 + 1), String(x0 - 1 > 0 ? x0 - 1 : x0 + 2),
+               String(Math.floor(v / k)), ...numDist(x0).map(String)],
+              String(x0)
+            )
+          };
+        }
+      }
+      // резервный вариант
+      const a = rand(3, 10), b = rand(1, 10);
+      const x = a * a - b;
+      return {
+        q: `√(x + ${b}) = ${a}`, a: String(x),
+        gen: () => pick3([String(a * a + b), ...numDist(x).map(String)], String(x))
+      };
+    },
+    // √x + b = a
+    () => {
+      const a = rand(4, 12);
+      const b = rand(1, a - 2);
+      const x = (a - b) * (a - b);
+      return {
+        q: `√x + ${b} = ${a}`, a: String(x),
+        gen: () => pick3([String((a + b) * (a + b)), String(a * a), ...numDist(x).map(String)], String(x))
+      };
+    },
+    // a − √x = b
+    () => {
+      const b = rand(1, 10), d = rand(1, 10);
+      const a = b + d;
+      const x = d * d;
+      return {
+        q: `${a} − √x = ${b}`, a: String(x),
+        gen: () => pick3([String(a * a), String(b * b), ...numDist(x).map(String)], String(x))
+      };
+    },
+    // √(a − x) = b
+    () => {
+      const b = rand(2, 7);
+      const a = b * b + rand(1, 25);
+      const x = a - b * b;
+      return {
+        q: `√(${a} − x) = ${b}`, a: String(x),
+        gen: () => pick3([String(a + b * b), String(b * b), String(a - b), ...numDist(x).map(String)], String(x))
+      };
+    }
+  ];
+
+  /* ======================= СБОРКА ЗАДАНИЙ ======================= */
+  const makeRootTask = () => pick(rootGens)();
+  const makeEqTask   = () => pick(eqGens)();
+
+  function buildQuestions(kind){
+    const list = [];
+    const seen = new Set();
+    let guard = 0;
+    while (list.length < 10 && guard++ < 800){
+      const t = (kind === 'roots') ? makeRootTask() : makeEqTask();
+      if (seen.has(t.q)) continue;
+      seen.add(t.q);
+      list.push(t);
+    }
+    while (list.length < 10){
+      list.push(kind === 'roots' ? makeRootTask() : makeEqTask());
+    }
+    return list;
+  }
+
+  function makeOptions(task){
+    const a = task.a;
+    let ds = (task.gen() || []).map(String).filter(d => d !== a);
+    ds = [...new Set(ds)];
+
+    if (ds.length < 3){
+      const n = Number(a);
+      if (!Number.isNaN(n)){
+        for (const d of numDist(n).map(String)){
+          if (d !== a && !ds.includes(d)) ds.push(d);
+          if (ds.length >= 3) break;
+        }
+      }
+    }
+    let guard = 0;
+    while (ds.length < 3 && guard++ < 300){
+      const d = String(rand(2, 200));
+      if (d !== a && !ds.includes(d)) ds.push(d);
+    }
+    ds = ds.slice(0, 3);
+    return shuffle([a, ...ds]);
+  }
+
+  /* ======================= СОСТОЯНИЕ И UI ======================= */
+  const el = id => document.getElementById(id);
+  const state = { theme: 'roots', tasks: [], idx: 0, score: 0, answered: false, correct: '' };
+
+  function show(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    el(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function startGame(theme){
+    state.theme = theme;
+    state.tasks = buildQuestions(theme);
+    state.idx = 0;
+    state.score = 0;
+    state.answered = false;
+    el('quiz-theme').textContent = theme === 'roots' ? 'Квадратные корни' : 'Уравнения с корнями';
+    el('score').textContent = '0';
+    show('screen-quiz');
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    const task = state.tasks[state.idx];
+    state.answered = false;
+    state.correct = task.a;
+
+    el('q-num').textContent = state.idx + 1;
+    el('progress-fill').style.width = (state.idx / 10 * 100) + '%';
+    el('question-text').textContent = task.q;
+
+    const fb = el('feedback');
+    fb.textContent = '';
+    fb.className = 'feedback';
+
+    el('btn-next').disabled = true;
+    el('btn-next').textContent = (state.idx === 9) ? 'Завершить ✓' : 'Дальше →';
+    el('btn-refresh').disabled = false;
+
+    renderOptions();
+  }
+
+  function renderOptions(){
+    const task = state.tasks[state.idx];
+    const opts = makeOptions(task);
+    const box = el('options');
+    box.innerHTML = '';
+    opts.forEach(o => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'option';
+      b.textContent = o;
+      b.addEventListener('click', () => answer(b, o));
+      box.appendChild(b);
+    });
+  }
+
+  function answer(btn, val){
+    if (state.answered) return;
+    state.answered = true;
+    const correct = state.correct;
+
+    document.querySelectorAll('.option').forEach(b => {
+      b.disabled = true;
+      if (b.textContent === correct) b.classList.add('correct');
+    });
+
+    const fb = el('feedback');
+    if (val === correct){
+      state.score++;
+      el('score').textContent = state.score;
+      fb.textContent = '✅ Верно! +1 очко';
+      fb.className = 'feedback ok';
+    } else {
+      btn.classList.add('wrong');
+      fb.textContent = `❌ Неверно. Правильный ответ: ${correct}`;
+      fb.className = 'feedback no';
+    }
+
+    el('btn-next').disabled = false;
+    el('btn-refresh').disabled = true;
+    el('progress-fill').style.width = ((state.idx + 1) / 10 * 100) + '%';
+  }
+
+  function nextQuestion(){
+    if (state.idx >= 9){ endGame(); return; }
+    state.idx++;
+    renderQuestion();
+  }
+
+  function endGame(){
+    const s = state.score;
+    el('final-score').textContent = s;
+
+    let emoji = '🏆', title = 'Отлично!', text = '';
+    if (s === 10){
+      emoji = '👑'; title = 'Идеально!';
+      text = 'Ты настоящий повелитель квадратных корней. Так держать!';
+    } else if (s >= 8){
+      emoji = '🏆'; title = 'Отличный результат!';
+      text = 'Материал усвоен очень хорошо. Немного практики — и будет идеально.';
+    } else if (s >= 6){
+      emoji = '🎯'; title = 'Хорошо!';
+      text = 'База есть, но есть над чем поработать. Повтори теорию и попробуй снова.';
+    } else if (s >= 4){
+      emoji = '💪'; title = 'Неплохо!';
+      text = 'Половина пути пройдена. Загляни в блок теории — там все нужные формулы.';
+    } else {
+      emoji = '📚'; title = 'Нужна практика';
+      text = 'Не расстраивайся! Прочитай теорию и попробуй ещё раз — с каждым разом будет лучше.';
+    }
+    el('result-emoji').textContent = emoji;
+    el('result-title').textContent = title;
+    el('result-text').textContent = text;
+
+    show('screen-end');
+  }
+
+  /* ======================= ОБРАБОТЧИКИ ======================= */
+  document.querySelectorAll('.theme-card').forEach(card => {
+    card.addEventListener('click', () => startGame(card.dataset.theme));
+  });
+
+  el('btn-refresh').addEventListener('click', () => {
+    if (state.answered) return;
+    renderOptions();
+  });
+
+  el('btn-next').addEventListener('click', nextQuestion);
+
+  el('btn-exit').addEventListener('click', () => show('screen-start'));
+
+  el('btn-again').addEventListener('click', () => startGame(state.theme));
+
+  el('btn-menu').addEventListener('click', () => show('screen-start'));
+
+})();
+</script>
+</body>
+</html>
